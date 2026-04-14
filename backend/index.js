@@ -21,6 +21,96 @@ app.get("/random-country", (req, res) => {
     }
 })
 
+app.get("/random-country/easy", (req, res) => {
+    function loadAndSend() {
+        try {
+            fetch("http://localhost:3000/country-data")
+            .then(data => {
+                return data.json()
+            })
+            .then(json => {
+                let randomCountry = json[Math.floor(Math.random() * json.length)]
+
+                fetch("https://restcountries.com/v3.1/name/" + randomCountry.name.common)
+                    .then(data => {
+                        return data.json()
+                    })
+                    .then(json => {
+                        if (json[0].population > 50000000) {
+                            res.json(json[0])
+                        } else {
+                            loadAndSend()
+                        }
+                    })
+            })
+        } catch (error) {
+            res.json(error)
+        }
+    }
+
+    loadAndSend()
+})
+
+app.get("/random-country/tough", (req, res) => {
+    function loadAndSend() {
+        try {
+            fetch("http://localhost:3000/country-data")
+            .then(data => {
+                return data.json()
+            })
+            .then(json => {
+                let randomCountry = json[Math.floor(Math.random() * json.length)]
+
+                fetch("https://restcountries.com/v3.1/name/" + randomCountry.name.common)
+                    .then(data => {
+                        return data.json()
+                    })
+                    .then(json => {
+                        if (json[0].population > 25000000) {
+                            res.json(json[0])
+                        } else {
+                            loadAndSend()
+                        }
+                    })
+            })
+        } catch (error) {
+            res.json(error)
+        }
+    }
+
+    loadAndSend()
+})
+
+app.get("/random-country/hard", (req, res) => {
+    function loadAndSend() {
+        try {
+            fetch("http://localhost:3000/country-data")
+            .then(data => {
+                return data.json()
+            })
+            .then(json => {
+                let randomCountry = json[Math.floor(Math.random() * json.length)]
+
+                fetch("https://restcountries.com/v3.1/name/" + randomCountry.name.common)
+                    .then(data => {
+                        return data.json()
+                    })
+                    .then(json => {
+                        if (json[0].population > 9000000) {
+                            res.json(json[0])
+                        } else {
+                            loadAndSend()
+                        }
+                    })
+            })
+        } catch (error) {
+            res.json(error)
+        }
+    }
+
+    loadAndSend()
+})
+
 app.get("/country-data", (req, res) => {
     try {
         fetch("https://restcountries.com/v3.1/all?fields=name,flags")
