@@ -1,5 +1,47 @@
 const express = require("express")
 
+async function loadAndSend(min, max) {
+        try {
+            let res;
+
+            return fetch("http://localhost:3000/country-data")
+            .then(data => {
+                return data.json()
+            })
+            .then(json => {
+                let randomCountry = json[Math.floor(Math.random(1, 250) * json.length)]
+
+                return fetch("https://restcountries.com/v3.1/name/" + randomCountry.name.common)
+                    .then(data => {
+                        return data.json()
+                    })
+                    .then(json => {
+                        if (json[0].population > min && json[0].population < max) {
+                            res = json[0]
+                            return res
+                        } else {
+                            return loadAndSend(min, max)
+                        }
+                    })
+            })
+        } catch (error) {
+            res.json(error)
+        }
+}
+
+function sendInfo(json) {
+    let newJSON = "{"
+
+    newJSON += '"name": "' + json.name.common + '",'
+    newJSON += '"flag": "' + json.flags.png + '"'
+
+    newJSON += "}"
+
+    newJSON = JSON.parse(newJSON)
+
+    return(newJSON)
+}
+
 const app = express()
 app.use(express.json())
 
@@ -21,94 +63,22 @@ app.get("/random-country", (req, res) => {
     }
 })
 
-app.get("/random-country/easy", (req, res) => {
-    function loadAndSend() {
-        try {
-            fetch("http://localhost:3000/country-data")
-            .then(data => {
-                return data.json()
-            })
-            .then(json => {
-                let randomCountry = json[Math.floor(Math.random() * json.length)]
-
-                fetch("https://restcountries.com/v3.1/name/" + randomCountry.name.common)
-                    .then(data => {
-                        return data.json()
-                    })
-                    .then(json => {
-                        if (json[0].population > 50000000) {
-                            res.json(json[0])
-                        } else {
-                            loadAndSend()
-                        }
-                    })
-            })
-        } catch (error) {
-            res.json(error)
-        }
-    }
-
-    loadAndSend()
+app.get("/random-country/easy", async (req, res) => {
+    loadAndSend(50000000, Infinity).then((value) => {
+        res.json(sendInfo(value))
+    })
 })
 
-app.get("/random-country/tough", (req, res) => {
-    function loadAndSend() {
-        try {
-            fetch("http://localhost:3000/country-data")
-            .then(data => {
-                return data.json()
-            })
-            .then(json => {
-                let randomCountry = json[Math.floor(Math.random() * json.length)]
-
-                fetch("https://restcountries.com/v3.1/name/" + randomCountry.name.common)
-                    .then(data => {
-                        return data.json()
-                    })
-                    .then(json => {
-                        if (json[0].population > 25000000) {
-                            res.json(json[0])
-                        } else {
-                            loadAndSend()
-                        }
-                    })
-            })
-        } catch (error) {
-            res.json(error)
-        }
-    }
-
-    loadAndSend()
+app.get("/random-country/tough", async (req, res) => {
+    loadAndSend(25000000, 50000000).then((value) => {
+        res.json(sendInfo(value))
+    })
 })
 
-app.get("/random-country/hard", (req, res) => {
-    function loadAndSend() {
-        try {
-            fetch("http://localhost:3000/country-data")
-            .then(data => {
-                return data.json()
-            })
-            .then(json => {
-                let randomCountry = json[Math.floor(Math.random() * json.length)]
-
-                fetch("https://restcountries.com/v3.1/name/" + randomCountry.name.common)
-                    .then(data => {
-                        return data.json()
-                    })
-                    .then(json => {
-                        if (json[0].population > 9000000) {
-                            res.json(json[0])
-                        } else {
-                            loadAndSend()
-                        }
-                    })
-            })
-        } catch (error) {
-            res.json(error)
-        }
-    }
-
-    loadAndSend()
+app.get("/random-country/hard", async (req, res) => {
+    loadAndSend(9000000, 25000000).then((value) => {
+        res.json(sendInfo(value))
+    })
 })
 
 app.get("/country-data", (req, res) => {
