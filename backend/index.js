@@ -1,5 +1,21 @@
 const express = require("express")
 
+async function randomCountries() {
+    return fetch("http://localhost:3000/country-data")
+    .then(data => {
+        return data.json()
+    })
+    .then(json => {
+        let countries = []
+        for(let i = 0; i < 4; i++) {
+            let randomCountry = json[Math.floor(Math.random(1, 250) * json.length)]
+            let countryName = randomCountry.name.common
+            countries.push(countryName)
+        }
+        return countries
+    })
+}
+
 async function loadAndSend(min, max) {
         try {
             let res;
@@ -32,10 +48,19 @@ async function loadAndSend(min, max) {
 function sendInfo(json) {
     let newJSON = "{"
 
-    newJSON += '"name": "' + json.name.common + '",'
-    newJSON += '"flag": "' + json.flags.png + '"'
+    newJSON += '"details": {"name": "' + json.name.common + '",'
+    newJSON += '"flag": "' + json.flags.png + '"},'
 
-    newJSON += "}"
+    newJSON += '"otherOptions": "'
+
+    randomCountries().then(value => {
+        console.log(value)
+        for (let i = 0; i < value.length; i++) {
+            newJSON += value[i] + ", "
+        }
+    })
+
+    newJSON += '"}'
 
     newJSON = JSON.parse(newJSON)
 
