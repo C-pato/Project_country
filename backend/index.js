@@ -45,26 +45,16 @@ async function loadAndSend(min, max) {
         }
 }
 
-function sendInfo(json) {
-    let newJSON = "{"
+async function sendInfo(json) {
+    const options = await randomCountries()
 
-    newJSON += '"details": {"name": "' + json.name.common + '",'
-    newJSON += '"flag": "' + json.flags.png + '"},'
-
-    newJSON += '"otherOptions": "'
-
-    randomCountries().then(value => {
-        console.log(value)
-        for (let i = 0; i < value.length; i++) {
-            newJSON += value[i] + ", "
-        }
-    })
-
-    newJSON += '"}'
-
-    newJSON = JSON.parse(newJSON)
-
-    return(newJSON)
+    return {
+        details: {
+            name: json.name.common,
+            flag: json.flags.png
+        },
+        otherOptions: options
+    }
 }
 
 const app = express()
@@ -89,21 +79,21 @@ app.get("/random-country", (req, res) => {
 })
 
 app.get("/random-country/easy", async (req, res) => {
-    loadAndSend(50000000, Infinity).then((value) => {
-        res.json(sendInfo(value))
-    })
+    const value = await loadAndSend(50000000, Infinity)
+    const result = await sendInfo(value)
+    res.json(result)
 })
 
 app.get("/random-country/tough", async (req, res) => {
-    loadAndSend(25000000, 50000000).then((value) => {
-        res.json(sendInfo(value))
-    })
+    const value = await loadAndSend(25000000, 50000000)
+    const result = await sendInfo(value)
+    res.json(result)
 })
 
 app.get("/random-country/hard", async (req, res) => {
-    loadAndSend(9000000, 25000000).then((value) => {
-        res.json(sendInfo(value))
-    })
+    const value = await loadAndSend(9000000, 25000000)
+    const result = await sendInfo(value)
+    res.json(result)
 })
 
 app.get("/country-data", (req, res) => {
@@ -122,5 +112,5 @@ app.get("/country-data", (req, res) => {
 })
 
 app.listen(3000, () => {
-    console.log("hi")
+    console.log(`Started server at http://localhost:3000`)
 })
