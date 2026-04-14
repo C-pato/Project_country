@@ -2,7 +2,7 @@ const express = require("express")
 
 const app = express()
 app.use(express.json())
-app.get("/", (req, res) => {
+app.get("/country-data", (req, res) => {
     try {
         fetch("https://restcountries.com/v3.1/all?fields=name,flags")
         .then(data => {
