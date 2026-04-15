@@ -53,7 +53,8 @@ async function sendInfo(json) {
     return {
         details: {
             name: json.name.common,
-            flag: json.flags.png
+            flag: json.flags.png,
+            googleMaps: json.maps.googleMaps
         },
         otherOptions: options
     }
