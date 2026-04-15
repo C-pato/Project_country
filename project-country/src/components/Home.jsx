@@ -7,15 +7,123 @@ import estonia from "../assets/estonia.png";
 
 const Home = () => {
   const [difficulty, setDifficulty] = useState("Easy");
+  const [selectedId, setSelectedId] = useState();
+  const [currentData, setCurrentData] = useState([]);
+  const [flag, setFlag] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [score, setScore] = useState(0);
+
+  const points = {
+  Easy: 1,
+  Tough: 3,
+  Hard: 5
+  };
+
+
+  async function handleChoice(choice) {
+  setSelectedId(choice.id);
+
+  if (choice.isCorrect) {
+    setScore(prev => prev + points[difficulty]);
+  } else {
+    const finalScore = score;
+
+    try {
+      await fetch("http://localhost:3000/score", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          score: finalScore
+        })
+      });
+    } catch (err) {
+      console.error("Failed to send score:", err);
+    }
+
+    setScore(0);
+  }
+}
+
+
+  function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+
+  async function loadData() {
+  setLoading(true);
+
+  try {
+    const res = await fetch(`http://localhost:3000/random-country/${difficulty}`);
+
+    if (!res.ok) {
+      throw new Error("API failed");
+    }
+
+    const data = await res.json();
+
+    setFlag(data.details.flag);
+    setCurrentData(convertToTable(data));
+    setSelectedId(undefined);
+
+  } catch (err) {
+    console.error("Load failed:", err);
+  } finally {
+    setLoading(false); // ALWAYS runs
+  }
+}
+
+
   function difficultyChange(d) {
     setDifficulty(d);
   }
 
-  const [selectedId, setSelectedId] = useState();
+  
+
+
 
   function nextFlag() {
-    setSelectedId(undefined);
-  }
+  loadData();
+}
+
+
+function convertToTable(apiData) {
+  const { details, otherOptions } = apiData;
+
+  const correctEntry = {
+    id: Math.floor(Math.random() * 1000000),
+    text: details.name,
+    isCorrect: true
+  };
+
+  const incorrectEntries = otherOptions.map(option => ({
+    id: Math.floor(Math.random() * 1000000),
+    text: option,
+    isCorrect: false
+  }));
+
+  const table = [correctEntry, ...incorrectEntries];
+
+  return shuffle(table);
+}
+
+
+
+  useEffect(() => {
+  loadData();
+}, [difficulty]);
+
+
+
+  useEffect(()=>{
+    console.log(currentData)
+  }, [currentData])
 
   const dummy_data = [
     { id: 1, text: "Estonia", isCorrect: true },
