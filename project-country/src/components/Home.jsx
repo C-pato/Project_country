@@ -58,7 +58,7 @@ const Home = () => {
               </label>
 
               <select
-                className="rounded-xl border border-blue-300 bg-white px-3 py-1.5 text-sm font-semibold text-blue-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="hover:border-blue-500 rounded-xl border border-blue-300 bg-white px-3 py-1.5 text-sm font-semibold text-blue-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 name="difficulty"
                 id="difficulty"
                 value={difficulty}
@@ -102,8 +102,13 @@ const Home = () => {
 
           <div className="flex flex-row justify-end mx-2">
             <button
+              disabled={selectedId === undefined}
               onClick={nextFlag}
-              className="mb-2 border-2 border-blue-700 bg-blue-700 text-white justify-self-end rounded-xl px-5 w-auto h-12"
+              className={`mb-2 justify-self-end rounded-xl border-2 px-5 w-auto h-12 text-white transition-colors duration-300 ${
+                selectedId === undefined
+                  ? "border-gray-300 bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "border-blue-400 bg-blue-400 hover:border-blue-500 hover:bg-blue-500"
+              }`}
             >
               Next flag
             </button>
