@@ -6,16 +6,91 @@ import estonia from "../assets/estonia.png";
 
 const Home = () => {
   const [difficulty, setDifficulty] = useState("Easy");
+  const [selectedId, setSelectedId] = useState();
+  const [currentData, setCurrentData] = useState([]);
+  const [flag, setFlag] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [score, setScore] = useState(0);
+
+  const points = {
+  Easy: 1,
+  Tough: 3,
+  Hard: 5
+  };
+
+
+  async function handleChoice(choice) {
+  setSelectedId(choice.id);
+
+  if (choice.isCorrect) {
+    setScore(prev => prev + points[difficulty]);
+  } else {
+    const finalScore = score;
+
+    try {
+      await fetch("http://localhost:3000/score", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          score: finalScore
+        })
+      });
+    } catch (err) {
+      console.error("Failed to send score:", err);
+    }
+
+    setScore(0);
+  }
+}
+
+
+  function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+
+  async function loadData() {
+  setLoading(true);
+
+  try {
+    const res = await fetch(`http://localhost:3000/random-country/${difficulty}`);
+
+    if (!res.ok) {
+      throw new Error("API failed");
+    }
+
+    const data = await res.json();
+
+    setFlag(data.details.flag);
+    setCurrentData(convertToTable(data));
+    setSelectedId(undefined);
+
+  } catch (err) {
+    console.error("Load failed:", err);
+  } finally {
+    setLoading(false); // ALWAYS runs
+  }
+}
+
+
   function difficultyChange(d) {
     setDifficulty(d);
   }
 
-  const [selectedId, setSelectedId] = useState();
-  const [currentData, setCurrentData] = useState();
+  
+
+
 
   function nextFlag() {
-    setSelectedId(undefined);
-  }
+  loadData();
+}
+
 
 function convertToTable(apiData) {
   const { details, otherOptions } = apiData;
@@ -32,19 +107,14 @@ function convertToTable(apiData) {
     isCorrect: false
   }));
 
-  return [correctEntry, ...incorrectEntries];
+  const table = [correctEntry, ...incorrectEntries];
+
+  return shuffle(table);
 }
 
 
+
   useEffect(() => {
-  const loadData = async () => {
-    const res = await fetch(`http://localhost:3000/random-country/${difficulty}`);
-    const data = await res.json();
-
-    const table = convertToTable(data);
-    setCurrentData(table);
-  };
-
   loadData();
 }, [difficulty]);
 
@@ -72,7 +142,7 @@ function convertToTable(apiData) {
           <img src={globeLogo} alt="Globe" className="w-6 h-6" />
           <h1 className="text-xl font-bold">Flag Guessing Game</h1>
         </div>
-        <p className="text-blue-800 font-bold">Score:</p>
+        <p className="text-blue-800 font-bold">Score: {score}</p>
       </div>
 
       <div className="md:mx-2 select-none">
@@ -104,8 +174,19 @@ function convertToTable(apiData) {
         {/* flag thingy with answers could be a component */}
         <div>
           <div className="flex justify-center rounded-2xl mt-2">
-            <img src={estonia} alt="Temp image" className="border-2 border-blue-200 rounded-2xl md:w-1/3 h-auto" />
-          </div>
+  {loading ? (
+    <p className="text-blue-700 font-bold text-xl">Loading...</p>
+  ) : (
+    flag && (
+      <img 
+        src={flag}
+        alt="Country flag"
+        className="border-2 border-blue-200 rounded-2xl md:w-1/3 h-auto"
+      />
+    )
+  )}
+</div>
+
           <p className="flex justify-center m-5">
             Which country does this flag belong to?
           </p>
@@ -120,6 +201,7 @@ function convertToTable(apiData) {
     isCorrect={item.isCorrect}
     selectedId={selectedId}
     setSelectedId={setSelectedId}
+    onSelect={handleChoice}
   />
 ))}
 

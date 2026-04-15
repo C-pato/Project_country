@@ -5,12 +5,17 @@ const ChoiceBox = (props) => {
   const isSelected = props.selectedId === props.choiceId;
 
   function buttonClick() {
-    if (isAnswered) {
-      return;
-    }
+  if (isAnswered) return;
 
-    props.setSelectedId(props.choiceId);
-  }
+  const choice = {
+    id: props.choiceId,
+    text: props.text,
+    isCorrect: props.isCorrect
+  };
+
+  props.onSelect(choice);
+  props.setSelectedId(props.choiceId);
+}
 
   let buttonClasses = "border-blue-500 border-2 rounded-2xl text-black hover:opacity-80";
 
