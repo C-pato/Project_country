@@ -10,14 +10,11 @@ const Home = () => {
     setDifficulty(d);
   }
 
-  const [clicked, setClicked] = useState(false);
+  const [selectedId, setSelectedId] = useState();
 
-  function buttonClick(buttonId){
-    setClicked(true)
-
-  } 
-
-
+  function nextFlag() {
+    setSelectedId(undefined);
+  }
 
 
 
@@ -40,7 +37,7 @@ const Home = () => {
         <p className="text-blue-800 font-bold">Score:</p>
       </div>
 
-      <div className="mx-10 select-none">
+      <div className="md:mx-10 select-none">
         <div className="flex my-5">
           <p>Choose the correct country for the flag.</p>
           {/* Easy/tough/hard */}
@@ -80,15 +77,21 @@ const Home = () => {
           {dummy_data.map(item => (
   <ChoiceBox
     key={item.id}
+    choiceId={item.id}
     text={item.text}
     isCorrect={item.isCorrect}
+    selectedId={selectedId}
+    setSelectedId={setSelectedId}
   />
 ))}
 
 </div>
 
           <div className="flex flex-row justify-end">
-            <button className="border-2 border-blue-700 bg-blue-700 text-white justify-self-end rounded-xl px-4 w-auto h-10">
+            <button
+              onClick={nextFlag}
+              className="border-2 border-blue-700 bg-blue-700 text-white justify-self-end rounded-xl px-4 w-auto h-10"
+            >
               Next flag
             </button>
           </div>
