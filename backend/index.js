@@ -1,13 +1,13 @@
 const express = require("express")
 
-async function randomCountries() {
+async function randomCountries(randomCountriesAmount) {
     return fetch("http://localhost:3000/country-data")
     .then(data => {
         return data.json()
     })
     .then(json => {
         let countries = []
-        while (countries.length < 4) {
+        while (countries.length < randomCountriesAmount) {
             let randomCountry = json[Math.floor(Math.random(1, 250) * json.length)]
             let countryName = randomCountry.name.common
             if (!countries.includes(countryName)) {
@@ -47,8 +47,8 @@ async function loadAndSend(min, max) {
         }
 }
 
-async function sendInfo(json) {
-    const options = await randomCountries()
+async function sendInfo(json, num) {
+    const options = await randomCountries(num)
 
     return {
         details: {
@@ -81,21 +81,45 @@ app.get("/random-country", (req, res) => {
     }
 })
 
-app.get("/random-country/easy", async (req, res) => {
+app.get("/random-country/easy/", async (req, res) => {
+    const otherOptionsAmount = 4
     const value = await loadAndSend(50000000, Infinity)
-    const result = await sendInfo(value)
+    const result = await sendInfo(value, otherOptionsAmount)
     res.json(result)
 })
 
-app.get("/random-country/tough", async (req, res) => {
+app.get("/random-country/tough/", async (req, res) => {
+    const otherOptionsAmount = 4
     const value = await loadAndSend(25000000, 50000000)
-    const result = await sendInfo(value)
+    const result = await sendInfo(value, otherOptionsAmount)
     res.json(result)
 })
 
-app.get("/random-country/hard", async (req, res) => {
+app.get("/random-country/hard/", async (req, res) => {
+    const otherOptionsAmount = 4
     const value = await loadAndSend(9000000, 25000000)
-    const result = await sendInfo(value)
+    const result = await sendInfo(value, otherOptionsAmount)
+    res.json(result)
+})
+
+app.get("/random-country/easy/:num", async (req, res) => {
+    const otherOptionsAmount = req.params.num
+    const value = await loadAndSend(50000000, Infinity)
+    const result = await sendInfo(value, otherOptionsAmount)
+    res.json(result)
+})
+
+app.get("/random-country/tough/:num", async (req, res) => {
+    const otherOptionsAmount = req.params.num
+    const value = await loadAndSend(25000000, 50000000)
+    const result = await sendInfo(value, otherOptionsAmount)
+    res.json(result)
+})
+
+app.get("/random-country/hard/:num", async (req, res) => {
+    const otherOptionsAmount = req.params.num
+    const value = await loadAndSend(9000000, 25000000)
+    const result = await sendInfo(value, otherOptionsAmount)
     res.json(result)
 })
 
