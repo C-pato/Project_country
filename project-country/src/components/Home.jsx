@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import globeLogo from "../assets/globe.svg";
 import ChoiceBox from "./ChoiceBox";
-
-import estonia from "../assets/estonia.png";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [difficulty, setDifficulty] = useState("Easy");
@@ -11,6 +10,7 @@ const Home = () => {
   const [flag, setFlag] = useState(null);
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState(0);
+  const [username, setUsername] = useState("user");
 
   const points = {
   Easy: 1,
@@ -26,17 +26,20 @@ const Home = () => {
     setScore(prev => prev + points[difficulty]);
   } else {
     const finalScore = score;
+    const submittedName = username.trim() || "user";
 
     try {
-      await fetch("http://localhost:3000/score", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          score: finalScore
-        })
-      });
+      await fetch(`http://localhost:3000/scores`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    name: submittedName,
+    score: finalScore,
+    difficulty: difficulty
+  })
+});
     } catch (err) {
       console.error("Failed to send score:", err);
     }
@@ -59,7 +62,7 @@ const Home = () => {
   setLoading(true);
 
   try {
-    const res = await fetch(`http://localhost:3000/random-country/${difficulty}`);
+    const res = await fetch(`http://localhost:3000/random-country/${difficulty}/5`);
 
     if (!res.ok) {
       throw new Error("API failed");
@@ -117,32 +120,39 @@ function convertToTable(apiData) {
   useEffect(() => {
   loadData();
 }, [difficulty]);
-
-
-
-  useEffect(()=>{
-    console.log(currentData)
-  }, [currentData])
-
-
-
-  const dummy_data = [
-  { id: 1, text: "Estonia", isCorrect: true },
-  { id: 2, text: "Germany", isCorrect: false },
-  { id: 3, text: "Russia", isCorrect: false },
-  { id: 4, text: "Denmark", isCorrect: false },
-  { id: 5, text: "Netherlands", isCorrect: false },
-  { id: 6, text: "Sweden", isCorrect: false },
-];
-
   return (
     <>
-      <div className=" flex justify-between items-center p-4 border-blue-300 border-2 bg-blue-100 rounded-b-lg ">
+      <div className="flex flex-col gap-3 border-2 border-blue-300 bg-blue-100 p-4 rounded-b-lg md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2">
           <img src={globeLogo} alt="Globe" className="w-6 h-6" />
           <h1 className="text-xl font-bold">Flag Guessing Game</h1>
         </div>
-        <p className="text-blue-800 font-bold">Score: {score}</p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
+          <p className="text-blue-800 font-bold whitespace-nowrap">Score: {score}</p>
+          <div className="flex items-center gap-2 rounded-xl border border-blue-200 bg-white px-2 py-1 shadow-sm">
+            <label htmlFor="username" className="text-xs font-semibold text-blue-900 whitespace-nowrap">
+              Name
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              placeholder="Your name"
+              className="w-28 bg-transparent text-sm text-blue-950 outline-none placeholder:text-blue-400 sm:w-32"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-2 mt-3 flex justify-end">
+        <Link
+          to="/leaderboard"
+          className="rounded-xl border border-blue-300 bg-white px-3 py-2 text-sm font-semibold text-blue-800 transition hover:border-blue-500"
+        >
+          View Leaderboard
+        </Link>
       </div>
 
       <div className="md:mx-2 select-none">

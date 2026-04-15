@@ -1,4 +1,14 @@
 const express = require("express")
+const fs = require("fs")
+
+function loadUsers() {
+    const data = fs.readFileSync("scores.json", "utf-8")
+    return JSON.parse(data)
+}
+
+function saveUsers(users) {
+    fs.writeFileSync("scores.json", JSON.stringify(users, null, 2))
+}
 const cors = require("cors")
 
 
@@ -140,6 +150,110 @@ app.get("/country-data", (req, res) => {
         res.send(error)
     }
     
+})
+
+app.post("/scores", (req, res) => {
+    const name = req.body.name
+    const score = req.body.score
+    const diff = req.body.difficulty
+    
+    const users = loadUsers()
+
+    let user = users.find(u => u.name == name)
+
+    if (!user) {
+        user = {name,
+            scores: []}
+        users.push(user)
+    }
+
+    user.scores.push({score: score, difficulty: diff})
+    saveUsers(users)
+    res.send(user)
+})
+
+app.get("/scores/show", (req, res) => {
+    const users = loadUsers()
+
+    res.json(users)
+})
+
+app.get("/scores/leaderboard", (req, res) => {
+    const users = loadUsers()
+
+    let allscores = []
+
+    users.forEach(user => {
+        user.scores.forEach(score => {
+            allscores.push({
+                user: user.name,
+                score: {score: score}
+            })
+        });
+    });
+    allscores.sort((a, b) => b.score - a.score)
+
+    res.json(allscores.slice(0, 10))
+})
+
+app.get("/scores/leaderboard/easy", (req, res) => {
+    const users = loadUsers()
+
+    let allscores = []
+
+    users.forEach(user => {
+        user.scores.forEach(score => {
+            if (score.difficulty == "easy") {
+                allscores.push({
+                    user: user.name,
+                    score: {score: score.score, difficulty: "easy"}
+                })
+            }
+        });
+    });
+    allscores.sort((a, b) => b.score - a.score)
+
+    res.json(allscores.slice(0, 10))
+})
+
+app.get("/scores/leaderboard/tough", (req, res) => {
+    const users = loadUsers()
+
+    let allscores = []
+
+    users.forEach(user => {
+        user.scores.forEach(score => {
+            if (score.difficulty == "tough") {
+                allscores.push({
+                    user: user.name,
+                    score: {score: score.score, difficulty: "tough"}
+                })
+            }
+        });
+    });
+    allscores.sort((a, b) => b.score - a.score)
+
+    res.json(allscores.slice(0, 10))
+})
+
+app.get("/scores/leaderboard/hard", (req, res) => {
+    const users = loadUsers()
+
+    let allscores = []
+
+    users.forEach(user => {
+        user.scores.forEach(score => {
+            if (score.difficulty == "hard") {
+                allscores.push({
+                    user: user.name,
+                    score: {score: score.score, difficulty: "hard"}
+                })
+            }
+        });
+    });
+    allscores.sort((a, b) => b.score - a.score)
+
+    res.json(allscores.slice(0, 10))
 })
 
 app.listen(3000, () => {

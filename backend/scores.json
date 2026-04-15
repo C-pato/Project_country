@@ -1,0 +1,28 @@
+[
+  {
+    "name": "test0",
+    "scores": [
+      {
+        "score": 11,
+        "difficulty": "tough"
+      }
+    ]
+  },
+  {
+    "name": "test1",
+    "scores": [
+      {
+        "score": 15,
+        "difficulty": "hard"
+      },
+      {
+        "score": 20,
+        "difficulty": "hard"
+      },
+      {
+        "score": 20,
+        "difficulty": "tough"
+      }
+    ]
+  }
+]
