@@ -11,10 +11,48 @@ const Home = () => {
   }
 
   const [selectedId, setSelectedId] = useState();
+  const [currentData, setCurrentData] = useState();
 
   function nextFlag() {
     setSelectedId(undefined);
   }
+
+function convertToTable(apiData) {
+  const { details, otherOptions } = apiData;
+
+  const correctEntry = {
+    id: Math.floor(Math.random() * 1000000),
+    text: details.name,
+    isCorrect: true
+  };
+
+  const incorrectEntries = otherOptions.map(option => ({
+    id: Math.floor(Math.random() * 1000000),
+    text: option,
+    isCorrect: false
+  }));
+
+  return [correctEntry, ...incorrectEntries];
+}
+
+
+  useEffect(() => {
+  const loadData = async () => {
+    const res = await fetch(`http://localhost:3000/random-country/${difficulty}`);
+    const data = await res.json();
+
+    const table = convertToTable(data);
+    setCurrentData(table);
+  };
+
+  loadData();
+}, [difficulty]);
+
+
+
+  useEffect(()=>{
+    console.log(currentData)
+  }, [currentData])
 
 
 
@@ -74,7 +112,7 @@ const Home = () => {
 
 
 <div className="grid grid-cols-3">
-          {dummy_data.map(item => (
+          {currentData && currentData.map(item => (
   <ChoiceBox
     key={item.id}
     choiceId={item.id}
@@ -84,6 +122,7 @@ const Home = () => {
     setSelectedId={setSelectedId}
   />
 ))}
+
 
 </div>
 
