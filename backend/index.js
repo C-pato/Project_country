@@ -1,4 +1,7 @@
 const express = require("express")
+const cors = require("cors")
+
+
 
 async function randomCountries(randomCountriesAmount) {
     return fetch("http://localhost:3000/country-data")
@@ -62,6 +65,7 @@ async function sendInfo(json, num) {
 
 const app = express()
 app.use(express.json())
+app.use(cors());
 
 app.get("/", (req, res) => {
     res.send("Main page")
