@@ -8,7 +8,7 @@ const ChoiceBox = ({ text, isCorrect }) => {
   }
 
   return (
-    <div className="w-1/3">
+    <div className="w-full p-2">
       <button
         onClick={buttonClick}
         className={`w-full rounded-xl p-4 font-bold transition-colors duration-300
