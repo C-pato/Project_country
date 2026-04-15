@@ -151,17 +151,19 @@ app.get("/country-data", (req, res) => {
 app.post("/scores", (req, res) => {
     const name = req.body.name
     const score = req.body.score
+    const diff = req.body.difficulty
     
     const users = loadUsers()
 
     let user = users.find(u => u.name == name)
 
     if (!user) {
-        user = {name, scores: []}
+        user = {name,
+            scores: []}
         users.push(user)
     }
 
-    user.scores.push(score)
+    user.scores.push({score: score, difficulty: diff})
     saveUsers(users)
     res.send(user)
 })
@@ -181,8 +183,68 @@ app.get("/scores/leaderboard", (req, res) => {
         user.scores.forEach(score => {
             allscores.push({
                 user: user.name,
-                score: score
+                score: {score: score}
             })
+        });
+    });
+    allscores.sort((a, b) => b.score - a.score)
+
+    res.json(allscores.slice(0, 10))
+})
+
+app.get("/scores/leaderboard/easy", (req, res) => {
+    const users = loadUsers()
+
+    let allscores = []
+
+    users.forEach(user => {
+        user.scores.forEach(score => {
+            if (score.difficulty == "easy") {
+                allscores.push({
+                    user: user.name,
+                    score: {score: score.score, difficulty: "easy"}
+                })
+            }
+        });
+    });
+    allscores.sort((a, b) => b.score - a.score)
+
+    res.json(allscores.slice(0, 10))
+})
+
+app.get("/scores/leaderboard/tough", (req, res) => {
+    const users = loadUsers()
+
+    let allscores = []
+
+    users.forEach(user => {
+        user.scores.forEach(score => {
+            if (score.difficulty == "tough") {
+                allscores.push({
+                    user: user.name,
+                    score: {score: score.score, difficulty: "tough"}
+                })
+            }
+        });
+    });
+    allscores.sort((a, b) => b.score - a.score)
+
+    res.json(allscores.slice(0, 10))
+})
+
+app.get("/scores/leaderboard/hard", (req, res) => {
+    const users = loadUsers()
+
+    let allscores = []
+
+    users.forEach(user => {
+        user.scores.forEach(score => {
+            if (score.difficulty == "hard") {
+                allscores.push({
+                    user: user.name,
+                    score: {score: score.score, difficulty: "hard"}
+                })
+            }
         });
     });
     allscores.sort((a, b) => b.score - a.score)
