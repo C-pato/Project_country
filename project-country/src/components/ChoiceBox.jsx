@@ -17,7 +17,7 @@ const ChoiceBox = (props) => {
   props.setSelectedId(props.choiceId);
 }
 
-  let buttonClasses = "border-blue-500 border-2 rounded-2xl text-black hover:opacity-80";
+  let buttonClasses = "border-blue-300 hover:border-blue-500 border-2 rounded-2xl text-black hover:opacity-80";
 
   if (isAnswered) {
     if (props.isCorrect) {
