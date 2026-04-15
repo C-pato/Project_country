@@ -7,10 +7,12 @@ async function randomCountries() {
     })
     .then(json => {
         let countries = []
-        for(let i = 0; i < 4; i++) {
+        while (countries.length < 4) {
             let randomCountry = json[Math.floor(Math.random(1, 250) * json.length)]
             let countryName = randomCountry.name.common
-            countries.push(countryName)
+            if (!countries.includes(countryName)) {
+                countries.push(countryName)
+            }
         }
         return countries
     })
